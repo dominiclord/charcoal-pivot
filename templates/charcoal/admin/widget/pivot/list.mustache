@@ -1,0 +1,19 @@
+{{!
+    The object must be PivotAware
+    Use the `obj` available from the dashboard / ObjectContainerTrait
+
+    The `obj` has the `pivots` method (@see PivotAwareTrait)
+}}
+<section class="js-pivot-container js-pivot-sortable">
+    <div role="tablist"
+         id="{{ widgetId }}_accordion"
+         class="panel-group js-grid-container{{^ showPivotHeading }} js-pivot-preview-only{{/ showPivotHeading }}"
+         aria-multiselectable="false">
+    {{# pivots }}
+        {{> charcoal/admin/widget/pivot/object }}
+    {{/ pivots }}
+    {{^ hasPivots }}
+    {{> charcoal/admin/widget/pivot/empty }}
+    {{/ hasPivots }}
+    </div>
+</section>

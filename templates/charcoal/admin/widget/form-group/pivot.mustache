@@ -1,0 +1,26 @@
+{{!--
+Pivot Widget, as Form Group
+================================
+
+`charcoal/admin/widget/form-group/pivot`
+
+--}}
+
+<fieldset>
+
+    {{# showHeader }}
+    <header class="o-header -border">
+        {{# showTitle }}
+        <h2>{{ title }}</h2>
+        {{/ showTitle }}
+
+        {{> charcoal/admin/template/inc.description }}
+    </header>
+    {{/ showHeader }}
+
+    {{!-- Include the pivot widget }}
+    {{> charcoal/admin/widget/pivot }}
+
+    {{> charcoal/admin/template/inc.notes }}
+
+</fieldset>
