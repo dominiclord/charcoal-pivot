@@ -237,6 +237,13 @@ trait PivotAwareTrait
     abstract function id();
 
     /**
+     * Retrieve the object's title.
+     *
+     * @return string
+     */
+    abstract function title();
+
+    /**
      * Retrieve the object model factory.
      *
      * @return \Charcoal\Factory\FactoryInterface
