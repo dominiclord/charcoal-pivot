@@ -15,12 +15,12 @@
     @see Charcoal.Admin.Widget_Pivot
 }}
 Charcoal.Admin.manager().add_widget({
-    id:   '{{ widgetId }}',
+    id: '{{ widgetId }}',
     type: 'charcoal/admin/widget/pivot',
     data: {
         obj_type: '{{ objType }}',
-        obj_id:   '{{ objId }}', // Can be a string
-        group:    '{{ group }}'
+        obj_id: '{{ objId }}',
+        target_object_type: '{{ targetObjectType }}'
     },
     widget_options: {{& widgetOptions }}
 });

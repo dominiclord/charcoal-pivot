@@ -35,19 +35,19 @@ class CreateAction extends AdminAction
 
         if (
             !isset($params['pivots']) ||
-            !isset($params['source_obj_id']) ||
-            !isset($params['source_obj_type']) ||
-            !isset($params['target_obj_type'])
+            !isset($params['obj_id']) ||
+            !isset($params['obj_type']) ||
+            !isset($params['target_object_type'])
         ) {
+            $this->addFeedback('error', 'Invalid parameters for Pivot.');
             $this->setSuccess(false);
-
             return $response;
         }
 
         $pivots = $params['pivots'];
-        $sourceObjId = $params['source_obj_id'];
-        $sourceObjType = $params['source_obj_type'];
-        $targetObjType = $params['target_obj_type'];
+        $sourceObjId = $params['obj_id'];
+        $sourceObjType = $params['obj_type'];
+        $targetObjType = $params['target_object_type'];
 
         // Need more pivots...
         if (!count($pivots)) {
@@ -90,7 +90,7 @@ class CreateAction extends AdminAction
         $count = count($pivots);
         $i = 0;
         for (; $i<$count; $i++) {
-            $targetObjId = $pivots[$i]['target_obj_id'];
+            $targetObjId = $pivots[$i]['target_object_id'];
             $position = $pivots[$i]['position'];
 
             $pivotModel = $this->modelFactory()->create(Pivot::class);

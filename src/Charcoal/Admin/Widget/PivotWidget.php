@@ -26,9 +26,6 @@ use \Charcoal\Admin\Ui\ObjectContainerTrait;
 // From 'charcoal-translation'
 use \Charcoal\Translation\TranslationString;
 
-// From 'charcoal-pivot'
-use \Charcoal\Pivot\Interfaces\PivotContainerInterface;
-
 /**
  * The Widget for displaying Pivots.
  */
@@ -58,42 +55,14 @@ class PivotWidget extends AdminWidget implements
      *
      * @var string
      */
-    protected $pivotObjType;
+    protected $sourceObjectType;
 
     /**
-     * The pivot heading (property or template).
+     * The pivot target object type.
      *
-     * @var string[]|string
+     * @var string
      */
-    protected $pivotHeading;
-
-    /**
-     * The pivot preview (property or template).
-     *
-     * @var string[]|string
-     */
-    protected $pivotPreview;
-
-    /**
-     * Flag wether the pivot heading should be displayed.
-     *
-     * @var boolean
-     */
-    private $showPivotHeading = true;
-
-    /**
-     * Flag wether the pivot preview should be displayed.
-     *
-     * @var boolean
-     */
-    private $showPivotPreview = false;
-
-    /**
-     * The widgets's available pivot types.
-     *
-     * @var array
-     */
-    protected $pivotableObjects;
+    protected $targetObjectType;
 
     /**
      * Inject dependencies from a DI Container.
@@ -126,43 +95,13 @@ class PivotWidget extends AdminWidget implements
     }
 
     /**
-     * Pivot types with their collections.
-     *
-     * @return array
-     */
-    public function pivotTypes()
-    {
-        $pivotableObjects = $this->pivotableObjects();
-        $out = [];
-
-        if (!$pivotableObjects) {
-            return $out;
-        }
-
-        $i = 0;
-        foreach ($pivotableObjects as $pivotType => $pivotMeta) {
-            $i++;
-            $label = $pivotMeta['label'];
-
-            $out[] = [
-                'ident'  => $this->createIdent($pivotType),
-                'label'  => $label,
-                'val'    => $pivotType,
-                'active' => ($i == 1)
-            ];
-        }
-
-        return $out;
-    }
-
-    /**
-     * Pivot by groups.
+     * Pivots by object type.
      *
      * @return Collection
      */
     public function pivots()
     {
-        $pivots = $this->obj()->pivots($this->group());
+        $pivots = $this->obj()->pivots($this->targetObjectType());
 
         foreach ($pivots as $pivot) {
             // $GLOBALS['widget_template'] = (string)$pivot->rawPreview();
@@ -227,8 +166,6 @@ class PivotWidget extends AdminWidget implements
         return $lambda;
     }
 
-
-
 // Setters
 // =============================================================================
 
@@ -252,70 +189,27 @@ class PivotWidget extends AdminWidget implements
     }
 
     /**
-     * Set the pivot's default heading.
+     * Set the widget's pivot source object type.
      *
-     * @param  string $heading The pivot heading template.
-     * @throws InvalidArgumentException If provided argument is not of type 'string'.
-     * @return string[]|string
-     */
-    public function setPivotHeading($heading)
-    {
-        $this->pivotHeading = $heading;
-
-        return $this;
-    }
-
-    /**
-     * Set the pivot's default preview.
-     *
-     * @param  string $preview The pivot preview template.
-     * @throws InvalidArgumentException If provided argument is not of type 'string'.
-     * @return string[]|string
-     */
-    public function setPivotPreview($preview)
-    {
-        $this->pivotPreview = $preview;
-
-        return $this;
-    }
-
-    /**
-     * Set whether to show a heading for each related object.
-     *
-     * @param boolean $show The show heading flag.
-     * @return string
-     */
-    public function setShowPivotHeading($show)
-    {
-        $this->showPivotHeading = !!$show;
-
-        return $this;
-    }
-
-    /**
-     * Set whether to show a preview for each related object.
-     *
-     * @param boolean $show The show preview flag.
-     * @return string
-     */
-    public function setShowPivotPreview($show)
-    {
-        $this->showPivotPreview = !!$show;
-
-        return $this;
-    }
-
-    /**
-     * Set the widget's pivot grouping.
-     *
-     * Prevents the pivot from deleting all non related pivots.
-     *
-     * @param string $id The group identifier.
+     * @param string $type The object type.
      * @return self
      */
-    public function setGroup($id)
+    public function setSourceObjectType($type)
     {
-        $this->group = $id;
+        $this->sourceObjectType = $type;
+
+        return $this;
+    }
+
+    /**
+     * Set the widget's pivot target object type.
+     *
+     * @param string $type The object type.
+     * @return self
+     */
+    public function setTargetObjectType($type)
+    {
+        $this->targetObjectType = $type;
 
         return $this;
     }
@@ -406,82 +300,6 @@ class PivotWidget extends AdminWidget implements
         return $this;
     }
 
-    /**
-     * Set the widget's available pivot types.
-     *
-     * Specificy the object as a KEY (ident) to whom you
-     * can add filters, label and orders.
-     *
-     * @param array|PivotableInterface[] $pivotableObjects A list of available pivot types.
-     * @return self
-     */
-    public function setPivotableObjects($pivotableObjects)
-    {
-        if (!$pivotableObjects) {
-            return false;
-        }
-
-        $out = [];
-        foreach ($pivotableObjects as $pivotType => $pivotMeta) {
-            $label = '';
-            $filters = [];
-            $orders = [];
-            $numPerPage = 0;
-            $page = 1;
-            $pivotOption = [ 'label', 'filters', 'orders', 'num_per_page', 'page' ];
-            $pivotData = array_diff_key($pivotMeta, $pivotOption);
-
-            // Disable an pivotable model
-            if (isset($pivotMeta['active']) && !$pivotMeta['active']) {
-                continue;
-            }
-
-            // Useful for replacing a pre-defined pivot type
-            if (isset($pivotMeta['pivot_type'])) {
-                $pivotType = $pivotMeta['pivot_type'];
-            } else {
-                $pivotMeta['pivot_type'] = $pivotType;
-            }
-
-            if (isset($pivotMeta['label'])) {
-                if (TranslationString::isTranslatable($pivotMeta['label'])) {
-                    $label = new TranslationString($pivotMeta['label']);
-                }
-            }
-
-            if (isset($pivotMeta['filters'])) {
-                $filters = $pivotMeta['filters'];
-            }
-
-            if (isset($pivotMeta['orders'])) {
-                $orders = $pivotMeta['orders'];
-            }
-
-            if (isset($pivotMeta['num_per_page'])) {
-                $numPerPage = $pivotMeta['num_per_page'];
-            }
-
-            if (isset($pivotMeta['page'])) {
-                $page = $pivotMeta['page'];
-            }
-
-            $out[$pivotType] = [
-                'label'      => $label,
-                'filters'    => $filters,
-                'orders'     => $orders,
-                'page'       => $page,
-                'numPerPage' => $numPerPage,
-                'data'       => $pivotData
-            ];
-        }
-
-        $this->pivotableObjects = $out;
-
-        return $this;
-    }
-
-
-
 // Getters
 // =============================================================================
 
@@ -503,57 +321,23 @@ class PivotWidget extends AdminWidget implements
     }
 
     /**
-     * Retrieve the pivot's default heading.
-     *
-     * @return string|null
-     */
-    public function pivotHeading()
-    {
-        return $this->pivotHeading;
-    }
-
-    /**
-     * Retrieve the pivot's default preview.
-     *
-     * @return string|null
-     */
-    public function pivotPreview()
-    {
-        return $this->pivotPreview;
-    }
-
-    /**
-     * Determine if the widget displays a heading for each related objects.
-     *
-     * @return boolean
-     */
-    public function showPivotHeading()
-    {
-        if (!$this->showPivotHeading && !$this->showPivotPreview()) {
-            return true;
-        }
-
-        return $this->showPivotHeading;
-    }
-
-    /**
-     * Determine if the widget displays a preview for each related objects.
-     *
-     * @return boolean
-     */
-    public function showPivotPreview()
-    {
-        return $this->showPivotPreview;
-    }
-
-    /**
-     * Retrieve the widget's pivot grouping.
+     * Retrieve the widget's pivot source object type.
      *
      * @return string
      */
-    public function group()
+    public function sourceObjectType()
     {
-        return $this->group;
+        return $this->sourceObjectType;
+    }
+
+    /**
+     * Retrieve the widget's pivot target object type.
+     *
+     * @return string
+     */
+    public function targetObjectType()
+    {
+        return $this->targetObjectType;
     }
 
     /**
@@ -567,26 +351,6 @@ class PivotWidget extends AdminWidget implements
     }
 
     /**
-     * Retrieve the widget's available pivot types.
-     *
-     * @return array
-     */
-    public function pivotableObjects()
-    {
-        if ($this->pivotableObjects === null) {
-            $metadata = $this->obj()->metadata();
-
-            if (isset($metadata['pivots']['pivotable_objects'])) {
-                $this->setPivotableObjects($metadata['pivots']['pivotable_objects']);
-            } else {
-                $this->pivotableObjects = [];
-            }
-        }
-
-        return $this->pivotableObjects;
-    }
-
-    /**
      * Retrieve the current widget's options as a JSON object.
      *
      * @return string A JSON string.
@@ -594,15 +358,10 @@ class PivotWidget extends AdminWidget implements
     public function widgetOptions()
     {
         $options = [
-            'pivotable_objects'      => $this->pivotableObjects(),
-            'pivot_heading'      => $this->pivotHeading(),
-            'pivot_preview'      => $this->pivotPreview(),
-            'show_pivot_heading' => ( $this->showPivotHeading() ? 1 : 0 ),
-            'show_pivot_preview' => ( $this->showPivotPreview() ? 1 : 0 ),
-            'title'                   => $this->title(),
-            'obj_type'                => $this->obj()->objType(),
-            'obj_id'                  => $this->obj()->id(),
-            'group'                   => $this->group()
+            'title' => $this->title(),
+            'obj_type' => $this->obj()->objType(),
+            'obj_id' => $this->obj()->id(),
+            'target_object_type' => $this->targetObjectType()
         ];
 
         return json_encode($options, true);
@@ -611,17 +370,6 @@ class PivotWidget extends AdminWidget implements
 
 // Utilities
 // =============================================================================
-
-    /**
-     * Generate an HTML-friendly identifier.
-     *
-     * @param  string $string A dirty string to filter.
-     * @return string
-     */
-    public function createIdent($string)
-    {
-        return preg_replace('~/~', '-', $string);
-    }
 
     /**
      * Determine if the widget has an object assigned to it.

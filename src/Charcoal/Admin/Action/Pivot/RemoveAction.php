@@ -34,20 +34,14 @@ class RemoveAction extends AdminAction
         $params = $request->getParams();
 
         if (
-            !isset($params['source_obj_id']) ||
-            !isset($params['source_obj_type']) ||
-            !isset($params['target_obj_id']) ||
-            !isset($params['target_obj_type'])
+            !isset($params['pivot_id'])
         ) {
             $this->setSuccess(false);
 
             return $response;
         }
 
-        $sourceObjId = $params['source_obj_id'];
-        $sourceObjType = $params['source_obj_type'];
-        $targetObjId = $params['target_obj_id'];
-        $targetObjType = $params['target_obj_type'];
+        $pivotId = $params['pivot_id'];
 
         // Try loading the object
         try {
@@ -67,19 +61,11 @@ class RemoveAction extends AdminAction
             'logger'  => $this->logger,
             'factory' => $this->modelFactory()
         ]);
-        $loader
+        $pivotModel = $loader
             ->setModel($pivotProto)
-            ->addFilter('source_object_type', $sourceObjType)
-            ->addFilter('source_object_id', $sourceObjId)
-            ->addFilter('target_obj_id', $targetObjId)
-            ->addFilter('target_obj_type', $group);
+            ->load($pivotId);
 
-        $existingPivots = $loader->load();
-
-        // Should be just one, tho.
-        foreach ($existingPivots as $j) {
-            $j->delete();
-        }
+        $pivotModel->delete();
 
         $this->setSuccess(true);
 

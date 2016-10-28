@@ -37,7 +37,7 @@ class AddAction extends AdminAction
             !isset($params['pivots']) ||
             !isset($params['source_obj_id']) ||
             !isset($params['source_obj_type']) ||
-            !isset($params['target_obj_type'])
+            !isset($params['target_object_type'])
         ) {
             $this->setSuccess(false);
 
@@ -47,7 +47,7 @@ class AddAction extends AdminAction
         $pivots = $params['pivots'];
         $sourceObjId = $params['source_obj_id'];
         $sourceObjType = $params['source_obj_type'];
-        $targetObjType = $params['target_obj_type'];
+        $targetObjType = $params['target_object_type'];
 
         // Need more pivots...
         if (!count($pivots)) {
@@ -78,7 +78,7 @@ class AddAction extends AdminAction
             ->setModel($pivotProto)
             ->addFilter('source_object_type', $sourceObjType)
             ->addFilter('source_object_id', $sourceObjId)
-            ->addFilter('target_obj_type', $targetObjType)
+            ->addFilter('target_object_type', $targetObjType)
             ->addOrder('position', 'asc');
 
         $existingPivots = $loader->load();
@@ -87,7 +87,7 @@ class AddAction extends AdminAction
         $count = count($pivots);
         $i = 0;
         for (; $i < $count; $i++) {
-            $targetObjId = $pivots[$i]['target_obj_id'];
+            $targetObjId = $pivots[$i]['target_object_id'];
 
             $pivotModel = $this->modelFactory()->create(Pivot::class);
             $pivotModel

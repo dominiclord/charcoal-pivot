@@ -104,19 +104,6 @@ trait PivotAwareTrait
 
         $loader = $this->collectionLoader();
         $loader->setModel($targetObjProto);
-        $loader->setDynamicTypeField('type');
-
-        $widget = $this->pivotWidget();
-        if ($widget instanceof PivotWidget) {
-            $callable = function ($targetObj) {
-                $pivotables = $this->pivotableObjects();
-
-                if (isset($pivotables['data'])) {
-                    $targetObj->setData($pivotables['data']);
-                }
-            };
-            $loader->setCallback($callable->bindTo($widget));
-        }
 
         $collection = $loader->loadFromQuery($query);
 

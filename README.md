@@ -77,12 +77,7 @@ In your **source** model metadata, add the widget configuration in the default f
                 "title": "Target Objects",
                 "type": "charcoal/admin/widget/form-group/pivot",
                 "template": "charcoal/admin/widget/form-group/pivot",
-                "group": "my/namespace/target-object-type",
-                "pivotable_objects": {
-                    "my/namespace/target-object-type": {
-                        "label": "Target Object Name"
-                    }
-                }
+                "target_object_type": "my/namespace/target-object-type"
             },
             "[...]"
         }
