@@ -3,7 +3,7 @@
 namespace Charcoal\Pivot\Interfaces;
 
 /**
- * Defines an object that can have relationships through an intermediary object.
+ * Defines an object that is the source of an intermediary pivot object.
  */
 interface PivotAwareInterface
 {
