@@ -8,9 +8,9 @@ namespace Charcoal\Pivot\Interfaces;
 interface PivotableInterface
 {
     /**
-     * Retrieve the object's label.
+     * Retrieve the object's pivot source object.
      *
      * @return string
      */
-    public function pivotLabel();
+    public function belongsTo();
 }

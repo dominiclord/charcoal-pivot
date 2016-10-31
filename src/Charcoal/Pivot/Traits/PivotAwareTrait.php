@@ -15,12 +15,11 @@ use \Charcoal\Pivot\Interfaces\PivotableInterface;
 use \Charcoal\Pivot\Object\Pivot;
 
 /**
- * Provides support for pivots to objects.
+ * Provides support for pivots on objects.
  *
- * Used by objects that can have an pivot to other objects.
- * This is the glue between the {@see Pivot} object and the current object.
+ * Used by source objects that need a pivot to a target object.
  *
- * Abstract method needs to be implemented.
+ * Abstract methods need to be implemented.
  *
  * Implementation of {@see \Charcoal\Pivot\Interfaces\PivotAwareInterface}
  *
