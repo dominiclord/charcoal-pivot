@@ -104,8 +104,6 @@ class PivotWidget extends AdminWidget implements
         $pivots = $this->obj()->pivots($this->targetObjectType());
 
         foreach ($pivots as $pivot) {
-            // $GLOBALS['widget_template'] = (string)$pivot->rawPreview();
-
             yield $pivot;
         }
     }
@@ -338,6 +336,29 @@ class PivotWidget extends AdminWidget implements
     public function targetObjectType()
     {
         return $this->targetObjectType;
+    }
+
+    /**
+     * Retrieve the widget's pivot target object type label.
+     *
+     * @return string
+     */
+    public function dialogTitle()
+    {
+        $targetObjectProto = $this->modelFactory()->create($this->targetObjectType());
+        $label = $targetObjectProto->metadata()->get('labels.create_item');
+
+        if (empty($label)) {
+            throw new RuntimeException(
+                sprintf('create_item label is not defined for "%s"', get_class($targetObjectProto))
+            );
+        }
+
+        if (TranslationString::isTranslatable($label)) {
+            $label = new TranslationString($label);
+        }
+
+        return $label;
     }
 
     /**
