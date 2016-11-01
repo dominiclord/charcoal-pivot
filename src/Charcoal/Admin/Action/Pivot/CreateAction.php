@@ -89,7 +89,7 @@ class CreateAction extends AdminAction
 
         $count = count($pivots);
         $i = 0;
-        for (; $i<$count; $i++) {
+        for (; $i < $count; $i++) {
             $targetObjId = $pivots[$i]['target_object_id'];
             $position = $pivots[$i]['position'];
 
@@ -102,6 +102,9 @@ class CreateAction extends AdminAction
                 ->setPosition($position);
 
             $pivotModel->save();
+
+            $targetObjModel = $this->modelFactory()->create($targetObjType)->load($targetObjId);
+            $targetObjModel->postPivotSave();
         }
 
         $this->setSuccess(true);

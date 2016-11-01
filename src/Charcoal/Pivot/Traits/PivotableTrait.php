@@ -88,6 +88,16 @@ trait PivotableTrait
         return $collection[0];
     }
 
+    /**
+     * Save hook called after saving the model.
+     *
+     * @return boolean
+     */
+    public function postPivotSave()
+    {
+        return true;
+    }
+
 // Abstract Methods
 // =============================================================================
 
