@@ -2,6 +2,7 @@
     "properties": {
         "id": {
             "type": "id",
+            "mode": "uniqid",
             "label": "ID"
         },
         "active": {
