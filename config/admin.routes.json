@@ -1,0 +1,15 @@
+{
+    "routes": {
+        "actions": {
+            "pivot/create": {
+                "ident": "charcoal/admin/action/pivot/create"
+            },
+            "pivot/add": {
+                "ident": "charcoal/admin/action/pivot/add"
+            },
+            "pivot/remove": {
+                "ident": "charcoal/admin/action/pivot/remove"
+            }
+        }
+    }
+}
