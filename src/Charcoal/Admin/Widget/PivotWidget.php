@@ -23,8 +23,8 @@ use \Charcoal\Admin\AdminWidget;
 use \Charcoal\Admin\Ui\ObjectContainerInterface;
 use \Charcoal\Admin\Ui\ObjectContainerTrait;
 
-// From 'charcoal-translation'
-use \Charcoal\Translation\TranslationString;
+// From 'charcoal-translator'
+use \Charcoal\Translator\Translation;
 
 /**
  * The Widget for displaying Pivots.
@@ -46,7 +46,7 @@ class PivotWidget extends AdminWidget implements
     /**
      * The widget's title.
      *
-     * @var TranslationString|string[]
+     * @var Translation|string|null
      */
     private $title;
 
@@ -170,10 +170,10 @@ class PivotWidget extends AdminWidget implements
     /**
      * Set the widget's data.
      *
-     * @param array|Traversable $data The widget data.
+     * @param  array $data The widget data.
      * @return self
      */
-    public function setData($data)
+    public function setData(array $data)
     {
         /**
          * @todo Kinda hacky, but works with the concept of form.
@@ -233,11 +233,7 @@ class PivotWidget extends AdminWidget implements
      */
     public function setTitle($title)
     {
-        if (TranslationString::isTranslatable($title)) {
-            $this->title = new TranslationString($title);
-        } else {
-            $this->title = null;
-        }
+        $this->title = $this->translator()->translation($title);
 
         return $this;
     }
@@ -341,7 +337,7 @@ class PivotWidget extends AdminWidget implements
     /**
      * Retrieve the widget's pivot target object type label.
      *
-     * @return string
+     * @return Translation|string
      */
     public function dialogTitle()
     {
@@ -354,9 +350,7 @@ class PivotWidget extends AdminWidget implements
             );
         }
 
-        if (TranslationString::isTranslatable($label)) {
-            $label = new TranslationString($label);
-        }
+        $label = $this->translator()->translation($label);
 
         return $label;
     }
@@ -364,7 +358,7 @@ class PivotWidget extends AdminWidget implements
     /**
      * Retrieve the widget's title.
      *
-     * @return TranslationString|string[]
+     * @return Translation|string|null
      */
     public function title()
     {
