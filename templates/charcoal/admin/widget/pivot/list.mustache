@@ -4,16 +4,16 @@
 
     The `obj` has the `pivots` method (@see PivotAwareTrait)
 }}
-<section class="js-pivot-container js-pivot-sortable">
+<section class="c-attachments_container js-pivot-container {{^ readOnly }} js-pivot-sortable{{/ readOnly }}">
     <div role="tablist"
          id="{{ widgetId }}_accordion"
          class="panel-group js-grid-container"
          aria-multiselectable="false">
     {{# pivots }}
-    {{> charcoal/admin/widget/pivot/object }}
+        {{> charcoal/admin/widget/pivot/object }}
     {{/ pivots }}
     {{^ hasPivots }}
-    {{> charcoal/admin/widget/pivot/empty }}
+        {{> charcoal/admin/widget/pivot/empty }}
     {{/ hasPivots }}
     </div>
 </section>

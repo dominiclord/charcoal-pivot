@@ -6,8 +6,14 @@
 --}}
 
 {{# addJsRequirement }}
-<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
+<script rel="l10n">
+    {{> charcoal/admin/l10n/pivot.js }}
+</script>
 {{/ addJsRequirement }}
+
+{{# addJs }}
+<script src="{{# withBaseUrl }}assets/admin/scripts/pivot.js{{/ withBaseUrl }}"></script>
+{{/ addJs }}
 
 {{# addJs }}
 <script>

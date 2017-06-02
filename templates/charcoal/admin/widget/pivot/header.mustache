@@ -1,7 +1,9 @@
 <div class="btn-toolbar" role="toolbar">
+    {{^ readOnly }}
     <div class="btn-group" role="group">
         <a class="btn btn-primary js-add-pivot" href="{{ baseUrl }}admin/object/edit?obj_type={{ targetObjectType }}" data-type="{{ targetObjectType }}" data-title="{{ dialogTitle }}" target="_blank">
-            {{# _t}}Add{{/ _t }}{{! objType.label }}
+            {{# _t}}Add{{/ _t }}
         </a>
     </div>
+    {{/ readOnly }}
 </div>
