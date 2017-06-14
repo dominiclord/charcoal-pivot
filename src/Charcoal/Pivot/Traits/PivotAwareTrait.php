@@ -54,25 +54,26 @@ trait PivotAwareTrait
     /**
      * Retrieve the objects associated to the current object.
      *
-     * @param  string|null $targetObjectType Filter the pivots by an object type identifier.
-     * @throws InvalidArgumentException If the $targetObjectType is invalid.
+     * @param  string|null $targetObjType Filter the pivots by an object type identifier.
+     * @throws InvalidArgumentException If the $targetObjType is invalid.
      * @return Collection|Pivot[]
      */
-    public function pivots($targetObjectType = null)
+    public function pivots($targetObjType = null)
     {
-        if ($targetObjectType === null) {
-            throw new InvalidArgumentException('The $targetObjectType must be a objType.');
-        } elseif (!is_string($targetObjectType)) {
-            throw new InvalidArgumentException('The $targetObjectType must be a string.');
+        if ($targetObjType === null) {
+            throw new InvalidArgumentException('Target object type required.');
+        } elseif (!is_string($targetObjType)) {
+            throw new InvalidArgumentException('Target object type must be a string.');
         }
 
-        $sourceObjectType = $this->objType();
-        $sourceObjectId = $this->id();
+        $sourceObjType = $this->objType();
+        $sourceObjId   = $this->id();
 
         $pivotProto = $this->modelFactory()->get(Pivot::class);
         $pivotTable = $pivotProto->source()->table();
 
-        $targetObjProto = $this->modelFactory()->get($targetObjectType);
+        $targetObjProto = $this->modelFactory()->get($targetObjType);
+        $targetObjType  = $targetObjProto->objType();
         $targetObjTable = $targetObjProto->source()->table();
 
         if (!$targetObjProto->source()->tableExists() || !$pivotProto->source()->tableExists()) {
@@ -93,11 +94,11 @@ trait PivotAwareTrait
             WHERE
                 target_obj.active = 1
             AND
-                pivot_obj.source_object_type = "'.$sourceObjectType.'"
+                pivot_obj.source_object_type = "'.$sourceObjType.'"
             AND
-                pivot_obj.source_object_id = "'.$sourceObjectId.'"
+                pivot_obj.source_object_id = "'.$sourceObjId.'"
             AND
-                pivot_obj.target_object_type = "'.$targetObjectType.'"
+                pivot_obj.target_object_type = "'.$targetObjType.'"
 
             ORDER BY pivot_obj.position';
 
@@ -106,9 +107,9 @@ trait PivotAwareTrait
 
         $collection = $loader->loadFromQuery($query);
 
-        $this->pivots[$targetObjectType] = $collection;
+        $this->pivots[$targetObjType] = $collection;
 
-        return $this->pivots[$targetObjectType];
+        return $this->pivots[$targetObjType];
     }
 
     /**
@@ -145,13 +146,13 @@ trait PivotAwareTrait
 
         $model = $this->modelFactory()->create(Pivot::class);
 
-        $sourceObjectId = $this->id();
-        $sourceObjectType = $this->objType();
-        $pivotId = $obj->id();
+        $sourceObjId   = $this->id();
+        $sourceObjType = $this->objType();
+        $pivotId       = $obj->id();
 
         $model->setPivotId($pivotId);
-        $model->setObjId($sourceObjectId);
-        $model->setObjType($sourceObjectType);
+        $model->setObjId($sourceObjId);
+        $model->setObjType($sourceObjType);
 
         $model->save();
 
@@ -168,10 +169,10 @@ trait PivotAwareTrait
         $pivotProto = $this->modelFactory()->get(Join::class);
 
         $loader = $this->collectionLoader();
-        $loader
-            ->setModel($pivotProto)
-            ->addFilter('source_object_type', $this->objType())
-            ->addFilter('source_object_id', $this->id());
+        $loader->reset()
+               ->setModel($pivotProto)
+               ->addFilter('source_object_type', $this->objType())
+               ->addFilter('source_object_id', $this->id());
 
         $collection = $loader->load();
 
@@ -205,8 +206,8 @@ trait PivotAwareTrait
         return $this;
     }
 
-// Abstract Methods
-// =============================================================================
+    // Abstract Methods
+    // =========================================================================
 
     /**
      * Retrieve the object's type identifier.

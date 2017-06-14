@@ -33,25 +33,26 @@ trait PivotableTrait
     /**
      * Retrieve the source object associated to the current target object.
      *
-     * @param  string|null $sourceObjectType Filter the pivots by an object type identifier.
-     * @throws InvalidArgumentException If the $sourceObjectType is invalid.
+     * @param  string|null $sourceObjType Filter the pivots by an object type identifier.
+     * @throws InvalidArgumentException If the $sourceObjType is invalid.
      * @return Collection|Pivot[]
      */
-    public function belongsTo($sourceObjectType = null)
+    public function belongsTo($sourceObjType = null)
     {
-        if ($sourceObjectType === null) {
-            throw new InvalidArgumentException('The $sourceObjectType must be a objType.');
-        } elseif (!is_string($sourceObjectType)) {
-            throw new InvalidArgumentException('The $sourceObjectType must be a string.');
+        if ($sourceObjType === null) {
+            throw new InvalidArgumentException('Source object type required.');
+        } elseif (!is_string($sourceObjType)) {
+            throw new InvalidArgumentException('Source object type must be a string.');
         }
 
-        $targetObjectType = $this->objType();
-        $targetObjectId = $this->id();
+        $targetObjType = $this->objType();
+        $targetObjId   = $this->id();
 
         $pivotProto = $this->modelFactory()->get(Pivot::class);
         $pivotTable = $pivotProto->source()->table();
 
-        $sourceObjProto = $this->modelFactory()->get($sourceObjectType);
+        $sourceObjProto = $this->modelFactory()->get($sourceObjType);
+        $sourceObjType  = $sourceObjProto->objType();
         $sourceObjTable = $sourceObjProto->source()->table();
 
         if (!$sourceObjProto->source()->tableExists() || !$pivotProto->source()->tableExists()) {
@@ -72,11 +73,11 @@ trait PivotableTrait
             WHERE
                 source_obj.active = 1
             AND
-                pivot_obj.target_object_type = "'.$targetObjectType.'"
+                pivot_obj.target_object_type = "'.$targetObjType.'"
             AND
-                pivot_obj.target_object_id = "'.$targetObjectId.'"
+                pivot_obj.target_object_id = "'.$targetObjId.'"
             AND
-                pivot_obj.source_object_type = "'.$sourceObjectType.'"
+                pivot_obj.source_object_type = "'.$sourceObjType.'"
 
             ORDER BY pivot_obj.position';
 
@@ -98,8 +99,8 @@ trait PivotableTrait
         return true;
     }
 
-// Abstract Methods
-// =============================================================================
+    // Abstract Methods
+    // =============================================================================
 
     /**
      * Retrieve the object's type identifier.
