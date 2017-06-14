@@ -2,8 +2,8 @@
 
 namespace Charcoal\Pivot\Object;
 
-// Dependency from 'charcoal-core'
-use \Charcoal\Model\AbstractModel;
+// From 'charcoal-core'
+use Charcoal\Model\AbstractModel;
 
 /**
  * Pivot table to join two objects.

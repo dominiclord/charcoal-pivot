@@ -2,22 +2,23 @@
 
 namespace Charcoal\Admin\Action\Pivot;
 
-use \Exception;
+use Exception;
 
-use \Pimple\Container;
+// From Pimple
+use Pimple\Container;
 
-// Dependencies from PSR-7 (HTTP Messaging)
-use \Psr\Http\Message\RequestInterface;
-use \Psr\Http\Message\ResponseInterface;
+// From PSR-7
+use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ResponseInterface;
 
 // From 'charcoal-admin'
-use \Charcoal\Admin\AdminAction;
+use Charcoal\Admin\AdminAction;
 
 // From 'charcoal-core'
-use \Charcoal\Loader\CollectionLoader;
+use Charcoal\Loader\CollectionLoader;
 
 // From 'charcoal-pivot'
-use \Charcoal\Pivot\Object\Pivot;
+use Charcoal\Pivot\Object\Pivot;
 
 /**
  * Disconnect two objects
@@ -61,9 +62,7 @@ class RemoveAction extends AdminAction
             'logger'  => $this->logger,
             'factory' => $this->modelFactory()
         ]);
-        $pivotModel = $loader
-            ->setModel($pivotProto)
-            ->load($pivotId);
+        $pivotModel = $loader->setModel($pivotProto)->load($pivotId);
 
         $pivotModel->delete();
 

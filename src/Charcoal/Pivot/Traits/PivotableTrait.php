@@ -1,18 +1,18 @@
 <?php
 namespace Charcoal\Pivot\Traits;
 
-use \InvalidArgumentException;
+use InvalidArgumentException;
 
 // From 'charcoal-core'
-use \Charcoal\Model\ModelInterface;
-use \Charcoal\Loader\CollectionLoader;
+use Charcoal\Model\ModelInterface;
+use Charcoal\Loader\CollectionLoader;
 
 // From 'charcoal-admin'
-use \Charcoal\Admin\Widget\PivotWidget;
+use Charcoal\Admin\Widget\PivotWidget;
 
-// Local Dependencies
-use \Charcoal\Pivot\Interfaces\PivotableInterface;
-use \Charcoal\Pivot\Object\Pivot;
+// From 'charcoal-pivot'
+use Charcoal\Pivot\Interfaces\PivotableInterface;
+use Charcoal\Pivot\Object\Pivot;
 
 /**
  * Provides support for pivots on objects.

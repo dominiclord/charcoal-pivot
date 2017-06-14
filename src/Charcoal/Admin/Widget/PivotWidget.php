@@ -2,29 +2,30 @@
 
 namespace Charcoal\Admin\Widget;
 
-use \ArrayIterator;
-use \RuntimeException;
-use \InvalidArgumentException;
+use ArrayIterator;
+use RuntimeException;
+use InvalidArgumentException;
 
-use \Pimple\Container;
+// From Pimple
+use Pimple\Container;
 
-// From 'bobthecow/mustache.php'
-use \Mustache_LambdaHelper as LambdaHelper;
+// From Mustache
+use Mustache_LambdaHelper as LambdaHelper;
 
 // From 'charcoal-factory'
-use \Charcoal\Factory\FactoryInterface;
+use Charcoal\Factory\FactoryInterface;
 
 // From 'charcoal-core'
-use \Charcoal\Loader\CollectionLoader;
-use \Charcoal\Model\ModelFactory;
+use Charcoal\Loader\CollectionLoader;
+use Charcoal\Model\ModelFactory;
 
 // From 'charcoal-admin'
-use \Charcoal\Admin\AdminWidget;
-use \Charcoal\Admin\Ui\ObjectContainerInterface;
-use \Charcoal\Admin\Ui\ObjectContainerTrait;
+use Charcoal\Admin\AdminWidget;
+use Charcoal\Admin\Ui\ObjectContainerInterface;
+use Charcoal\Admin\Ui\ObjectContainerTrait;
 
 // From 'charcoal-translator'
-use \Charcoal\Translator\Translation;
+use Charcoal\Translator\Translation;
 
 /**
  * The Widget for displaying Pivots.
@@ -373,9 +374,9 @@ class PivotWidget extends AdminWidget implements
     public function widgetOptions()
     {
         $options = [
-            'title' => $this->title(),
-            'obj_type' => $this->obj()->objType(),
-            'obj_id' => $this->obj()->id(),
+            'title'              => $this->title(),
+            'obj_type'           => $this->obj()->objType(),
+            'obj_id'             => $this->obj()->id(),
             'target_object_type' => $this->targetObjectType()
         ];
 

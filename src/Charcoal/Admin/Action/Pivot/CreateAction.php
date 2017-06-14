@@ -2,22 +2,23 @@
 
 namespace Charcoal\Admin\Action\Pivot;
 
-use \Exception;
+use Exception;
 
-use \Pimple\Container;
+// From Pimple
+use Pimple\Container;
 
-// Dependencies from PSR-7 (HTTP Messaging)
-use \Psr\Http\Message\RequestInterface;
-use \Psr\Http\Message\ResponseInterface;
+// From PSR-7
+use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ResponseInterface;
 
 // From 'charcoal-admin'
-use \Charcoal\Admin\AdminAction;
+use Charcoal\Admin\AdminAction;
 
 // From 'charcoal-core'
-use \Charcoal\Loader\CollectionLoader;
+use Charcoal\Loader\CollectionLoader;
 
 // From 'charcoal-pivot'
-use \Charcoal\Pivot\Object\Pivot;
+use Charcoal\Pivot\Object\Pivot;
 
 /**
  * Associate two objects by creating a Pivot.
@@ -44,8 +45,8 @@ class CreateAction extends AdminAction
             return $response;
         }
 
-        $pivots = $params['pivots'];
-        $sourceObjId = $params['obj_id'];
+        $pivots        = $params['pivots'];
+        $sourceObjId   = $params['obj_id'];
         $sourceObjType = $params['obj_type'];
         $targetObjType = $params['target_object_type'];
 
@@ -74,12 +75,11 @@ class CreateAction extends AdminAction
             'logger'  => $this->logger,
             'factory' => $this->modelFactory()
         ]);
-        $loader
-            ->setModel($pivotProto)
-            ->addFilter('source_object_type', $sourceObjType)
-            ->addFilter('source_object_id', $sourceObjId)
-            ->addFilter('target_object_type', $targetObjType)
-            ->addOrder('position', 'asc');
+        $loader->setModel($pivotProto)
+               ->addFilter('source_object_type', $sourceObjType)
+               ->addFilter('source_object_id', $sourceObjId)
+               ->addFilter('target_object_type', $targetObjType)
+               ->addOrder('position', 'asc');
 
         $existingPivots = $loader->load();
 
@@ -94,12 +94,11 @@ class CreateAction extends AdminAction
             $position = $pivots[$i]['position'];
 
             $pivotModel = $this->modelFactory()->create(Pivot::class);
-            $pivotModel
-                ->setSourceObjectType($sourceObjType)
-                ->setSourceObjectId($sourceObjId)
-                ->setTargetObjectType($targetObjType)
-                ->setTargetObjectId($targetObjId)
-                ->setPosition($position);
+            $pivotModel->setSourceObjectType($sourceObjType)
+                       ->setSourceObjectId($sourceObjId)
+                       ->setTargetObjectType($targetObjType)
+                       ->setTargetObjectId($targetObjId)
+                       ->setPosition($position);
 
             $pivotModel->save();
 
