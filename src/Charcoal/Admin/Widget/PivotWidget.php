@@ -19,6 +19,10 @@ use Charcoal\Factory\FactoryInterface;
 use Charcoal\Loader\CollectionLoader;
 use Charcoal\Model\ModelFactory;
 
+// From 'charcoal-object'
+use Charcoal\Object\PublishableInterface;
+use Charcoal\Object\RoutableInterface;
+
 // From 'charcoal-admin'
 use Charcoal\Admin\AdminWidget;
 use Charcoal\Admin\Ui\ObjectContainerInterface;
@@ -105,6 +109,12 @@ class PivotWidget extends AdminWidget implements
         $pivots = $this->obj()->pivots($this->targetObjectType());
 
         foreach ($pivots as $pivot) {
+            if ($pivot instanceof RoutableInterface) {
+                $pivot['active'] = $pivot->isActiveRoute();
+            } elseif ($pivot instanceof PublishableInterface) {
+                $pivot['active'] = $pivot->isPublished();
+            }
+
             yield $pivot;
         }
     }

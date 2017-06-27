@@ -12,7 +12,7 @@
     <header{{^ readOnly }} draggable="true"{{/ readOnly }} id="{{ widgetId }}_heading_{{ id }}" class="panel-heading">
         <h4 class="panel-title">
             <span class="panel-title-icon glyphicon glyphicon-modal-window"></span>
-            <a href="object/edit?obj_type={{ objType }}&obj_id={{ id }}">{{& pivotLabel }}{{^ active }}&mdash; <span class="small">{{# _t }}Disabled{{/ _t }}</span>{{/ active }}</a>
+            <a href="object/edit?obj_type={{ objType }}&obj_id={{ id }}">{{& pivotLabel }}{{^ active }} <span class="small">&mdash; {{# _t }}Disabled{{/ _t }}</span>{{/ active }}</a>
         </h4>
     </header>
     <aside class="panel-actions panel-actions-float btn-toolbar js-pivot-actions" role="toolbar">
