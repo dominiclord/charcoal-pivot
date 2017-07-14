@@ -82,9 +82,7 @@ trait PivotAwareTrait
 
         $query = '
             SELECT
-                target_obj.*,
-                pivot_obj.target_object_id AS target_object_id,
-                pivot_obj.position AS position
+                target_obj.*
             FROM
                 `'.$targetObjTable.'` AS target_obj
             LEFT JOIN
@@ -100,7 +98,7 @@ trait PivotAwareTrait
             AND
                 pivot_obj.target_object_type = "'.$targetObjType.'"
 
-            ORDER BY pivot_obj.position';
+            ORDER BY pivot_obj.position ASC';
 
         $loader = $this->collectionLoader();
         $loader->setModel($targetObjProto);

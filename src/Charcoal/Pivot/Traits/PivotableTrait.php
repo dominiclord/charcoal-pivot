@@ -61,9 +61,7 @@ trait PivotableTrait
 
         $query = '
             SELECT
-                source_obj.*,
-                pivot_obj.source_object_id AS source_object_id,
-                pivot_obj.position AS position
+                source_obj.*
             FROM
                 `'.$sourceObjTable.'` AS source_obj
             LEFT JOIN
@@ -79,7 +77,7 @@ trait PivotableTrait
             AND
                 pivot_obj.source_object_type = "'.$sourceObjType.'"
 
-            ORDER BY pivot_obj.position';
+            ORDER BY pivot_obj.position ASC';
 
         $loader = $this->collectionLoader();
         $loader->setModel($sourceObjProto);
