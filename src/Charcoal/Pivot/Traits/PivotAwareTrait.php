@@ -158,11 +158,28 @@ trait PivotAwareTrait
     }
 
     /**
-     * Remove all joins linked to a specific pivot.
+     * Detach the current object's child relationships.
      *
+     * @deprecated in favour of AttachmentAwareTrait::removeChildJoins()
      * @return boolean
      */
     public function removeJoins()
+    {
+        $this->logger->warning(
+            'PivotAwareTrait::removeJoins() is deprecated. '.
+            'Use PivotAwareTrait::removeChildJoins() instead.',
+            [ 'package' => 'dominiclord/charcoal-pivot' ]
+        );
+
+        $this->removeChildJoins();
+    }
+
+    /**
+     * Detach the current object's child relationships.
+     *
+     * @return boolean
+     */
+    public function removeChildJoins()
     {
         $loader = $this->collectionLoader();
         $loader->reset()
