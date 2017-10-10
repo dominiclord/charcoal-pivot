@@ -111,10 +111,20 @@ To create a new **pivot** model, your **target** model needs to provide a quick 
 
 Hooks allow the **source** model to remove unnecessary relationships when deleted.
 ```php
+// PivotAwareTrait
 public function preDelete()
 {
-    // PivotAwareTrait
-    $this->removeJoins();
+    $this->removeChildJoins();
+    return parent::preDelete();
+}
+```
+
+Hooks allow the **target** model to remove unnecessary relationships when deleted.
+```php
+// PivotableTrait
+public function preDelete()
+{
+    $this->removeParentJoins();
     return parent::preDelete();
 }
 ```

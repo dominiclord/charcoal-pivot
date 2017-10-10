@@ -97,6 +97,28 @@ trait PivotableTrait
         return true;
     }
 
+    /**
+     * Detach the current object's parent relationships.
+     *
+     * @return boolean
+     */
+    public function removeParentJoins()
+    {
+        $loader = $this->collectionLoader();
+        $loader->reset()
+               ->setModel(Pivot::class)
+               ->addFilter('target_object_type', $this->objType())
+               ->addFilter('target_object_id', $this->id());
+
+        $collection = $loader->load();
+
+        foreach ($collection as $obj) {
+            $obj->delete();
+        }
+
+        return true;
+    }
+
     // Abstract Methods
     // =============================================================================
 
