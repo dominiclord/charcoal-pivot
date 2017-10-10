@@ -26,47 +26,73 @@ use Charcoal\Pivot\Object\Pivot;
 class RemoveAction extends AdminAction
 {
     /**
-     * @param RequestInterface  $request  A PSR-7 compatible Request instance.
-     * @param ResponseInterface $response A PSR-7 compatible Response instance.
+     * @param  RequestInterface  $request  A PSR-7 compatible Request instance.
+     * @param  ResponseInterface $response A PSR-7 compatible Response instance.
      * @return ResponseInterface
+     *     Expected HTTP status codes:
+     *     - `400`: If the "pivot_id" parameter is missing.
+     *     - `404`: If the "pivot_id" object is invalid or cannot be found.
+     *     - `418`: If the {@see Pivot} source does not exist.
+     *     - `200`: If the request was fulfilled.
      */
     public function run(RequestInterface $request, ResponseInterface $response)
     {
-        $params = $request->getParams();
+        $pivotId   = $request->getParam('pivot_id');
 
-        if (
-            !isset($params['pivot_id'])
-        ) {
+        if (!$pivotId) {
             $this->setSuccess(false);
-
-            return $response;
+            $this->addFeedback('error', 'Missing "pivot_id" for detaching objects.');
+            return $response->withStatus(400);
         }
 
-        $pivotId = $params['pivot_id'];
-
-        // Try loading the object
-        try {
-            $obj = $this->modelFactory()->create($sourceObjType)->load($sourceObjId);
-        } catch (Exception $e) {
+        $pivot = $this->modelFactory()->create(Pivot::class);
+        if (!$pivot->source()->tableExists()) {
             $this->setSuccess(false);
-
-            return $response;
+            $this->addFeedback('warning', 'Missing relationships table.');
+            return $response->withStatus(418);
         }
 
-        $pivotProto = $this->modelFactory()->create(Pivot::class);
-        if (!$pivotProto->source()->tableExists()) {
-            $pivotProto->source()->createTable();
+        $pivot->load($pivotId);
+        if (!$pivot->id()) {
+            $this->setSuccess(false);
+            $this->addFeedback('error', 'The relationship cannot be found.');
+            return $response->withStatus(404);
         }
 
-        $loader = new CollectionLoader([
-            'logger'  => $this->logger,
-            'factory' => $this->modelFactory()
-        ]);
-        $pivotModel = $loader->setModel($pivotProto)->load($pivotId);
+        $deleteObj = $request->getParam('delete_obj', false);
+        $deleteObj = filter_var($deleteObj, FILTER_VALIDATE_BOOLEAN);
 
-        $pivotModel->delete();
+        if ($deleteObj) {
+            $obj = $this->modelFactory()->create($pivot->targetObjectType());
+            if (!$obj->source()->tableExists()) {
+                $this->setSuccess(false);
+                $this->addFeedback('warning', 'Missing related table.');
+                return $response->withStatus(418);
+            }
 
-        $this->setSuccess(true);
+            $obj->load($pivot->targetObjectId());
+            if (!$obj->id()) {
+                $this->setSuccess(false);
+                $this->addFeedback('error', 'The related target cannot be found.');
+                return $response->withStatus(404);
+            }
+
+            if ($obj->delete()) {
+                $this->addFeedback('success', 'The related object is deleted.');
+            } else {
+                $this->addFeedback('error', 'The related object could not be deleted.');
+            }
+        }
+
+        $result = $pivot->delete();
+        $this->setSuccess($result);
+
+        if ($result) {
+            $this->addFeedback('success', 'The relationship is detached.');
+        } else {
+            $this->addFeedback('error', 'The relationship could not be detached.');
+        }
+
 
         return $response;
     }

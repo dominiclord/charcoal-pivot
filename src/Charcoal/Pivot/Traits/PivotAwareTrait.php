@@ -82,7 +82,8 @@ trait PivotAwareTrait
 
         $query = '
             SELECT
-                target_obj.*
+                target_obj.*,
+                pivot_obj.id AS pivot_id
             FROM
                 `'.$targetObjTable.'` AS target_obj
             LEFT JOIN

@@ -26,8 +26,8 @@ use Charcoal\Pivot\Object\Pivot;
 class CreateAction extends AdminAction
 {
     /**
-     * @param RequestInterface  $request  A PSR-7 compatible Request instance.
-     * @param ResponseInterface $response A PSR-7 compatible Response instance.
+     * @param  RequestInterface  $request  A PSR-7 compatible Request instance.
+     * @param  ResponseInterface $response A PSR-7 compatible Response instance.
      * @return ResponseInterface
      */
     public function run(RequestInterface $request, ResponseInterface $response)
@@ -40,7 +40,7 @@ class CreateAction extends AdminAction
             !isset($params['obj_type']) ||
             !isset($params['target_object_type'])
         ) {
-            $this->addFeedback('error', 'Invalid parameters for Pivot.');
+            $this->addFeedback('error', 'Invalid parameters for attaching objects.');
             $this->setSuccess(false);
             return $response;
         }
@@ -53,7 +53,6 @@ class CreateAction extends AdminAction
         // Need more pivots...
         if (!count($pivots)) {
             $this->setSuccess(false);
-
             return $response;
         }
 
@@ -103,7 +102,26 @@ class CreateAction extends AdminAction
             $pivotModel->save();
 
             $targetObjModel = $this->modelFactory()->create($targetObjType)->load($targetObjId);
-            $targetObjModel->postPivotSave();
+            try {
+                $targetObjModel->postPivotSave();
+            } catch (Exception $e) {
+                $url = sprintf(
+                    $this->adminUrl().'object/edit?obj_type=%s&obj_id=%s',
+                    $targetObjType,
+                    $targetObjId
+                );
+                $link = sprintf(
+                    '<a href="%s" target="_blank">%s</a>',
+                    $url,
+                    '&nbsp;<i class="fa fa-external-link" aria-hidden="true"></i>'
+                );
+                $this->addFeedback('notice', sprintf(
+                    ('<strong>"%s" %s</strong><br>%s'),
+                    $targetObjModel->name(),
+                    $link,
+                    $e->getMessage()
+                ));
+            }
         }
 
         $this->setSuccess(true);

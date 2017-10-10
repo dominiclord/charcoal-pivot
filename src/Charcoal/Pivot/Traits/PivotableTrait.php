@@ -61,7 +61,8 @@ trait PivotableTrait
 
         $query = '
             SELECT
-                source_obj.*
+                source_obj.*,
+                pivot_obj.id AS pivot_id
             FROM
                 `'.$sourceObjTable.'` AS source_obj
             LEFT JOIN

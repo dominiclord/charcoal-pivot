@@ -112,37 +112,89 @@ Charcoal.Admin.Widget_Pivot.prototype.listeners = function ()
                 }
             });
         })
-        .on('click.charcoal.pivots', '.js-pivot-actions a', function (e) {
-            var _this = $(this);
-            if (!_this.data('action')) {
-                return ;
+        .on('click.charcoal.pivots', '.js-pivot-actions a', function (event) {
+            event.preventDefault();
+
+            var $obj   = $(event.currentTarget),
+                action = $obj.data('action');
+
+            if (!action) {
+                return;
             }
 
-            e.preventDefault();
-            var action = _this.data('action');
             switch (action) {
                 case 'delete':
-                    if (!_this.data('id')) {
-                        break;
-                    }
-
-                    that.confirm(
-                        {
-                            title:      pivotWidgetL10n.confirmRemoval,
-                            message:    commonL10n.confirmAction,
-                            btnOKLabel: commonL10n.removeObject,
-                            callback:   function (result) {
-                                if (result) {
-                                    that.remove_pivot(_this.data('id'), function () {
-                                        that.reload();
-                                    });
-                                }
-                            }
-                        }
-                    );
-                    break;
+                    return that.delete_obj($obj);
+                case 'unlink':
+                    return that.unlink_obj($obj);
             }
         });
+};
+
+/**
+ * Confirm object deletion.
+ */
+Charcoal.Admin.Widget_Pivot.prototype.delete_obj = function ($obj)
+{
+    var that    = this,
+        pivotId = $obj.data('pivot-id');
+
+    if (!pivotId) {
+        return;
+    }
+
+    var $item    = $obj.closest('.js-pivot');
+    var $widget  = $obj.closest('.js-grid-container');
+    var template = {
+        '[[ childName ]]':  $item.data('name') || $item.data('type'),
+        '[[ parentName ]]': $widget.data('parent-name') || $widget.data('parent-type')
+    };
+
+    that.confirm({
+        title:      pivotWidgetL10n.relationship,
+        message:    pivotWidgetL10n.confirmDeletion.replaceMap(template),
+        btnOKLabel: pivotWidgetL10n.delete,
+        callback:   function (result) {
+            if (result) {
+                that.remove_pivot(pivotId, true, function () {
+                    that.reload();
+                });
+            }
+        }
+    });
+};
+
+/**
+ * Confirm object unlinking.
+ */
+Charcoal.Admin.Widget_Pivot.prototype.unlink_obj = function ($obj)
+{
+    var that = this,
+        pivotId = $obj.data('pivot-id');
+
+    if (!pivotId) {
+        return;
+    }
+
+    var $item    = $obj.closest('.js-pivot');
+    var $widget  = $obj.closest('.js-grid-container');
+    var template = {
+        '[[ childName ]]':  $item.data('name') || $item.data('type'),
+        '[[ parentName ]]': $widget.data('parent-name') || $widget.data('parent-type')
+    };
+
+    that.confirm({
+        title:      pivotWidgetL10n.relationship,
+        message:    pivotWidgetL10n.confirmDetach.replaceMap(template),
+        btnOKLabel: pivotWidgetL10n.detach,
+        callback:   function (result) {
+            if (result) {
+                that.remove_pivot(pivotId, false, function () {
+                    that.reload();
+                });
+            }
+        }
+    });
 };
 
 Charcoal.Admin.Widget_Pivot.prototype.create_pivot_dialog = function (type, title, id, cb)
@@ -219,8 +271,12 @@ Charcoal.Admin.Widget_Pivot.prototype.save = function ()
         return false;
     }
 
+    var that = this;
+
     // Create create_pivot from current list.
-    this.create_pivot();
+    this.create_pivot(function () {
+        that.reload();
+    });
 };
 
 Charcoal.Admin.Widget_Pivot.prototype.create_pivot = function (cb)
@@ -236,8 +292,7 @@ Charcoal.Admin.Widget_Pivot.prototype.create_pivot = function (cb)
         pivots: []
     };
 
-    this.element().find('.js-pivot-container').find('.js-pivot').each(function (i)
-    {
+    this.element().find('.js-pivot-container').find('.js-pivot').each(function (i) {
         var $this = $(this);
         var id = $this.data('id');
 
@@ -247,37 +302,101 @@ Charcoal.Admin.Widget_Pivot.prototype.create_pivot = function (cb)
         });
     });
 
-    $.post('pivot/create', data, function () {
+    var xhr = $.post('pivot/create', data, function (response) {
+        if ($.type(response) === 'object' && $.type(response.feedbacks) === 'array') {
+            Charcoal.Admin.feedback(response.feedbacks).dispatch();
+        }
+
         if (typeof cb === 'function') {
             cb();
         }
+
         that.set_dirty_state(false);
     }, 'json');
+
+    xhr.fail(function (jqXHR, textStatus, errorThrown) {
+        if (jqXHR.responseJSON && jqXHR.responseJSON.feedbacks) {
+            Charcoal.Admin.feedback(jqXHR.responseJSON.feedbacks);
+        } else {
+            var message = pivotWidgetL10n.syncFailed;
+            var error   = errorThrown || commonL10n.errorOccurred;
+
+            Charcoal.Admin.feedback([{
+                message: commonL10n.errorTemplate.replaceMap({
+                    '[[ errorMessage ]]': message,
+                    '[[ errorThrown ]]':  error
+                }),
+                level:   'error'
+            }]);
+        }
+
+        Charcoal.Admin.feedback().dispatch();
+    });
 };
 
 /**
- * [remove_pivot description]
- * @param  {Function} cb [description]
- * @return {[type]}      [description]
+ * Detach relationship.
+ *
+ * @param  {string|integer} pivotId    - The pivot ID.
+ * @param  {boolean}        [remove]   - Whether to delete the related object.
+ * @param  {function}       [callback] - Routine to be called after detaching the object.
+ * @return {boolean}
  */
-Charcoal.Admin.Widget_Pivot.prototype.remove_pivot = function (id, cb)
+Charcoal.Admin.Widget_Pivot.prototype.remove_pivot = function (pivotId, remove, callback)
 {
-    if (!id) {
+    if (!pivotId) {
         return false;
+    }
+
+    if ($.type(remove) === 'function') {
+        callback = remove;
+    }
+
+    if ($.type(remove) !== 'boolean') {
+        remove = false;
+    }
+
+    if ($.type(callback) !== 'function') {
+        callback = $.noop;
     }
 
     // Scope
     var that = this;
     var data = {
-        pivot_id: id
+        pivot_id:   pivotId,
+        delete_obj: (remove & 1)
     };
 
-    $.post('pivot/remove', data, function () {
-        if (typeof cb === 'function') {
-            cb();
+    var xhr = $.post('pivot/remove', data, function (response) {
+        if ($.type(response) === 'object' && $.type(response.feedbacks) === 'array') {
+            Charcoal.Admin.feedback(response.feedbacks).dispatch();
         }
+
+        if (typeof callback === 'function') {
+            callback();
+        }
+
         that.set_dirty_state(false);
     }, 'json');
+
+    xhr.fail(function (jqXHR, textStatus, errorThrown) {
+        if (jqXHR.responseJSON && jqXHR.responseJSON.feedbacks) {
+            Charcoal.Admin.feedback(jqXHR.responseJSON.feedbacks);
+        } else {
+            var message = pivotWidgetL10n.detachFailed;
+            var error   = errorThrown || commonL10n.errorOccurred;
+
+            Charcoal.Admin.feedback([{
+                message: commonL10n.errorTemplate.replaceMap({
+                    '[[ errorMessage ]]': message,
+                    '[[ errorThrown ]]':  error
+                }),
+                level:   'error'
+            }]);
+        }
+
+        Charcoal.Admin.feedback().dispatch();
+    });
 };
 
 /**

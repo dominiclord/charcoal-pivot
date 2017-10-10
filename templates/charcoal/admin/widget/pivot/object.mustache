@@ -7,8 +7,10 @@
 <article
     class="panel {{# active }}panel-default{{/ active}}{{^ active }}panel-danger{{/ active}} js-pivot"
     id="{{ widgetId }}_{{ id }}"
+    data-pivot-id="{{ pivotId }}"
     data-id="{{ id }}"
-    data-type="{{ objType }}">
+    data-type="{{ objType }}"
+    data-name="{{ name }}">
     <header{{^ readOnly }} draggable="true"{{/ readOnly }} id="{{ widgetId }}_heading_{{ id }}" class="panel-heading">
         <h4 class="panel-title">
             <span class="panel-title-icon glyphicon glyphicon-modal-window"></span>

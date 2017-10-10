@@ -8,6 +8,8 @@
     <div role="tablist"
          id="{{ widgetId }}_accordion"
          class="panel-group js-grid-container"
+         data-parent-type="{{ obj.objType }}"
+         data-parent-name="{{ obj.name }}"
          aria-multiselectable="false">
     {{# pivots }}
         {{> charcoal/admin/widget/pivot/object }}

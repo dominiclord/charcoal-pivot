@@ -109,6 +109,7 @@ class PivotWidget extends AdminWidget implements
         $pivots = $this->obj()->pivots($this->targetObjectType());
 
         foreach ($pivots as $pivot) {
+            $pivot['pivotId'] = $pivot['pivot_id'];
             if ($pivot instanceof RoutableInterface) {
                 $pivot['active'] = $pivot->isActiveRoute();
             } elseif ($pivot instanceof PublishableInterface) {
