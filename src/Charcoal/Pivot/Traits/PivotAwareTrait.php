@@ -164,11 +164,9 @@ trait PivotAwareTrait
      */
     public function removeJoins()
     {
-        $pivotProto = $this->modelFactory()->get(Join::class);
-
         $loader = $this->collectionLoader();
         $loader->reset()
-               ->setModel($pivotProto)
+               ->setModel(Pivot::class)
                ->addFilter('source_object_type', $this->objType())
                ->addFilter('source_object_id', $this->id());
 
