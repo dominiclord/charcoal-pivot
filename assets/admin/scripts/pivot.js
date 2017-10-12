@@ -113,14 +113,14 @@ Charcoal.Admin.Widget_Pivot.prototype.listeners = function ()
             });
         })
         .on('click.charcoal.pivots', '.js-pivot-actions a', function (event) {
-            event.preventDefault();
-
             var $obj   = $(event.currentTarget),
                 action = $obj.data('action');
 
             if (!action) {
                 return;
             }
+
+            event.preventDefault();
 
             switch (action) {
                 case 'delete':
